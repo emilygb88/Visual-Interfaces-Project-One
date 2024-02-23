@@ -7,23 +7,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body> 
-    <h1>Title Here!!</h1>
+    <h1>Project 1: Health In the USA</h1>
     <p>By: Emily Bever</p>
     <p>Using D3 Library</p>
     <div class="source">
         Source: Data from <a href="https://www.cdc.gov/dhdsp/maps/atlas/index.htm">cdc.gov</a>
     </div>
+    <div id="tooltip-map"></div>
+    <div id="map-elderly"></div>
+    <div id="map-blood-pressure"></div>
+    <svg height="5" width="5" xmlns="http://www.w3.org/2000/svg" version="1.1"> <defs> <pattern id="lightstripe" patternUnits="userSpaceOnUse" width="5" height="5"> <image xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc1JyBoZWlnaHQ9JzUnPgogIDxyZWN0IHdpZHRoPSc1JyBoZWlnaHQ9JzUnIGZpbGw9J3doaXRlJy8+CiAgPHBhdGggZD0nTTAgNUw1IDBaTTYgNEw0IDZaTS0xIDFMMSAtMVonIHN0cm9rZT0nIzg4OCcgc3Ryb2tlLXdpZHRoPScxJy8+Cjwvc3ZnPg==" x="0" y="0" width="5" height="5"> </image> </pattern> </defs></svg>
+
     <svg id="scatterplot"></svg>
 
     <div id="tooltip"></div>
-    <svg id = "histogram-elderly"></svg>
-    <svg id = "histogram-blood-pressure"></svg>
-    <div id="histogram-tooltip"style="opacity: 0;"></div>
+   
+    <svg id="histogram-elderly"></svg>
+    <svg id="histogram-blood-pressure"></svg>
+    <div id="histogram-tooltip" style="opacity: 0;"></div>
 
-    
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
     <script src="js/d3.v6.min.js"></script>
     <script src="js/scatterplot.js"></script>
     <script src="js/histogram.js"></script>
+    <script src="js/topojson.v3.js"></script>
+    <script src="js/choroplethMap.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
