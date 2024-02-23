@@ -1,77 +1,73 @@
-/**
- * Load data from CSV file asynchronously
- */
-let data;
-d3.csv('data/national_health_data.csv')
-  .then(_data => {
-    data = _data;
-    data.forEach(d => {
-        d.elderly_percentage = +d.elderly_percentage;
-        d.percent_high_blood_pressure = +d.percent_high_blood_pressure;
-      });   
-     
-      scatterplot = new Scatterplot({ parentElement: '#scatterplot'}, data);
-      scatterplot.updateVis();
-      // histogram = new Histogram({ parentElement: '#histogram'}, data);
+Promise.all([
+  d3.csv('data/national_health_data.csv'),
+  d3.json('data/counties-10m.json')
+]).then(data => {
+  const csvData = data[0];
+  const geoData = data[1];
 
-      // histogram = new Histogram({
-      //   parentElement: '#histogram', // Specify the parent element where the histogram will be rendered
-      //   containerWidth: 600, // Set the width of the container for the histogram
-      //   containerHeight: 400, // Set the height of the container for the histogram
-      //   margin: {top: 50, right: 50, bottom: 50, left: 50} // Set the margin for the histogram
-      // }, data);
-  
-      // // Call the updateVis method to render the histogram
-      // histogram.updateVis();
+  // Parse CSV data
+  csvData.forEach(d => {
+      d.elderly_percentage = +d.elderly_percentage;
+      d.percent_high_blood_pressure = +d.percent_high_blood_pressure;
+  });
 
-      const elderlyPercentageHistogram = new Histogram({
-        parentElement: '#histogram-elderly',
-        containerWidth: 600,
-        containerHeight: 400,
-        margin: { top: 25, right: 20, bottom: 50, left: 50 },
-      }, data, d => d.elderly_percentage, 'Elderly Percentage (%)');
-      
-      elderlyPercentageHistogram.updateVis();
-      
-      const bloodPressureHistogram = new Histogram({
-        parentElement: '#histogram-blood-pressure',
-        containerWidth: 600,
-        containerHeight: 400,
-        margin: { top: 25, right: 20, bottom: 50, left: 50 },
-      }, data, d => d.percent_high_blood_pressure, 'Percent High Blood Pressure (%)');
+  // Initialize scatterplot
+  scatterplot = new Scatterplot({ parentElement: '#scatterplot' }, csvData);
+  scatterplot.updateVis();
 
-      bloodPressureHistogram.updateVis();
-      
-    })
-    .catch(error => console.error(error));
+  // Initialize histograms
+  const elderlyPercentageHistogram = new Histogram({
+      parentElement: '#histogram-elderly',
+      containerWidth: 600,
+      containerHeight: 400,
+      margin: { top: 25, right: 20, bottom: 50, left: 50 },
+  }, csvData, d => d.elderly_percentage, 'Elderly Percentage (%)');
+
+  elderlyPercentageHistogram.updateVis();
+
+  const bloodPressureHistogram = new Histogram({
+      parentElement: '#histogram-blood-pressure',
+      containerWidth: 600,
+      containerHeight: 400,
+      margin: { top: 25, right: 20, bottom: 50, left: 50 },
+  }, csvData, d => d.percent_high_blood_pressure, 'Percent High Blood Pressure (%)');
+
+  bloodPressureHistogram.updateVis();
+
+  const geoDataElderly = JSON.parse(JSON.stringify(geoData));
+  const geoDataBloodPressure = JSON.parse(JSON.stringify(geoData));
 
 
+  geoDataElderly.objects.counties.geometries.forEach(d => {
+      for (let i = 0; i < csvData.length; i++) {
+          if (d.id === csvData[i].cnty_fips) {
+              d.properties.pop = +csvData[i].elderly_percentage;
+          }
+      }
+  });
 
-    // Create an instance of the Histogram class
-// const histogram = new Histogram({
-//   parentElement: '#histogram',
-//   containerWidth: 600,
-//   containerHeight: 400,
-//   margin: {top: 25, right: 20, bottom: 50, left: 50},
-//   tooltipPadding: 15
-// }, []);
+  geoDataBloodPressure.objects.counties.geometries.forEach(d => {
+      for (let i = 0; i < csvData.length; i++) {
+          if (d.id === csvData[i].cnty_fips) {
+              d.properties.pop = +csvData[i].percent_high_blood_pressure;
+          }
+      }
+  });
 
-// /**
-//  * Load data from CSV file asynchronously
-//  */
-// let data;
-// d3.csv('data/national_health_data.csv')
-//   .then(_data => {
-//     data = _data;
-//     data.forEach(d => {
-//         d.elderly_percentage = +d.elderly_percentage;
-//         d.percent_high_blood_pressure = +d.percent_high_blood_pressure;
-//       });
-//     // Call updateVis() only after data is loaded
-//     if (data) {
-//       histogram.updateVis();
-//       console.log("Data loaded successfully:", data); // Add this line to log data
+// For the elderly percentage map
+const elderlyMap = new ChoroplethMap({
+  parentElement: '#map-elderly',
+  containerWidth: 500,
+  containerHeight: 500,
+  margin: { top: 10, right: 10, bottom: 10, left: 10 },
+}, geoDataElderly); 
 
-//     } 
-//   })
-//   .catch(error => console.error(error));
+// For the high blood pressure map
+const bloodPressureMap = new ChoroplethMap({
+  parentElement: '#map-blood-pressure',
+  containerWidth: 500,
+  containerHeight: 500,
+  margin: { top: 10, right: 10, bottom: 10, left: 10 },
+}, geoDataBloodPressure); 
+
+}).catch(error => console.error(error));
