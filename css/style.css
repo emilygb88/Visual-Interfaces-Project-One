@@ -119,3 +119,44 @@ body {
   fill: none;
   shape-rendering: crispEdges; 
 }
+
+/* Choropleth maps */
+#states {
+  fill: #aaa;
+}
+
+#states .active {
+  display:none;
+}
+
+#state-borders {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.county-boundary {
+  fill: blue;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.county-boundary:hover, .state:hover {
+  fill: orange;
+}
+
+#tooltip-map {
+  position: absolute;
+  display: none;
+  background: #fff;
+  box-shadow: 3px 3px 3px 0px rgb(92 92 92 / 0.5);
+  border: 1px solid #ddd;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px;
+  min-width: 160px;
+  color: #333;
+}
