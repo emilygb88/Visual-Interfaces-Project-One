@@ -18,8 +18,8 @@ Promise.all([
   // Initialize histograms
   const elderlyPercentageHistogram = new Histogram({
       parentElement: '#histogram-elderly',
-      containerWidth: 600,
-      containerHeight: 400,
+      containerWidth: 500,
+      containerHeight: 300,
       margin: { top: 25, right: 20, bottom: 50, left: 50 },
   }, csvData, d => d.elderly_percentage, 'Elderly Percentage (%)');
 
@@ -27,8 +27,8 @@ Promise.all([
 
   const bloodPressureHistogram = new Histogram({
       parentElement: '#histogram-blood-pressure',
-      containerWidth: 600,
-      containerHeight: 400,
+      containerWidth: 500,
+      containerHeight: 300,
       margin: { top: 25, right: 20, bottom: 50, left: 50 },
   }, csvData, d => d.percent_high_blood_pressure, 'Percent High Blood Pressure (%)');
 
@@ -36,7 +36,6 @@ Promise.all([
 
   const geoDataElderly = JSON.parse(JSON.stringify(geoData));
   const geoDataBloodPressure = JSON.parse(JSON.stringify(geoData));
-
 
   geoDataElderly.objects.counties.geometries.forEach(d => {
       for (let i = 0; i < csvData.length; i++) {
@@ -57,17 +56,17 @@ Promise.all([
 // For the elderly percentage map
 const elderlyMap = new ChoroplethMap({
   parentElement: '#map-elderly',
-  containerWidth: 500,
-  containerHeight: 500,
   margin: { top: 10, right: 10, bottom: 10, left: 10 },
 }, geoDataElderly); 
+
+// elderlyMap.updateVis();
 
 // For the high blood pressure map
 const bloodPressureMap = new ChoroplethMap({
   parentElement: '#map-blood-pressure',
-  containerWidth: 500,
-  containerHeight: 500,
   margin: { top: 10, right: 10, bottom: 10, left: 10 },
 }, geoDataBloodPressure); 
+
+// bloodPressureMap.updateVis();
 
 }).catch(error => console.error(error));
