@@ -5,7 +5,7 @@ class Scatterplot {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data) {
+    constructor(_config, _data, _xAttribute = 'elderly_percentage', _yAttribute = 'percent_high_blood_pressure') {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 500,
@@ -15,6 +15,8 @@ class Scatterplot {
       }
       this.data = _data;
       this.initVis();
+      this.xAttribute = _xAttribute;
+      this.yAttribute = _yAttribute;
     }
     
     /**
@@ -78,20 +80,23 @@ class Scatterplot {
           .text('Percent High Blood Pressure (%)');
   
       // Specificy accessor functions
-      vis.xValue = d => d.elderly_percentage;
-      vis.yValue = d => d.percent_high_blood_pressure;
+      vis.xValue = d => d[vis.xAttribute];
+      vis.yValue = d => d[vis.yAttribute];
     }
   
     /**
      * Prepare the data and scales before we render it.
      */
-    updateVis() {
+    updateVis(xAttribute, yAttribute, xAttributeLabel, yAttributeLabel) {
       let vis = this;
+      
+      vis.xAttribute = xAttribute;
+      vis.yAttribute = yAttribute;
       
       // Set the scale input domains
       vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
       vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
-
+  
       // Update the axes/gridlines
       // We use the second .call() to remove the axis and just show gridlines
       vis.xAxisG
@@ -100,12 +105,20 @@ class Scatterplot {
   
       vis.yAxisG
           .call(vis.yAxis)
-          .call(g => g.select('.domain').remove())
+          .call(g => g.select('.domain').remove());
+  
+      // Update x-axis label
+      vis.chart.select('.x-axis-title')
+          .text(xAttributeLabel);
+  
+      // Update y-axis label
+      vis.svg.select('.y-axis-title')
+          .text(yAttributeLabel);
   
       // Add circles
       vis.circles = vis.chart.selectAll('.point')
-        .data(vis.data)
-        .join('circle')
+      .data(vis.data)
+      .join('circle')
           .attr('class', 'point')
           .attr('r', 4)
           .attr('cy', d => vis.yScale(vis.yValue(d)))
@@ -113,24 +126,21 @@ class Scatterplot {
           .attr('fill','#C8A2C8')
           .attr('opacity', 0.8);
   
-  
       // Tooltip event listeners
       vis.circles
           .on('mouseover', (event,d) => {
-            d3.select('#tooltip')
+          d3.select('#tooltip')
               .style('display', 'block')
               .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
               .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
               .html(`
-                <div> County: ${d.display_name}</div>
-                <div> Elderly Percentage: ${d.elderly_percentage}</div>
-                <div> Percent High Blood Pressure: ${d.percent_high_blood_pressure}</div>
+                  <div> County: ${d.display_name}</div>
+                  <div> ${xAttributeLabel}: ${d[vis.xAttribute]}</div>
+                  <div> ${yAttributeLabel}: ${d[vis.yAttribute]}</div>
               `);
           })
           .on('mouseleave', () => {
-            d3.select('#tooltip').style('display', 'none');
+          d3.select('#tooltip').style('display', 'none');
           });
-      
     }
-  
-  }
+}  
