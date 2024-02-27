@@ -1,4 +1,3 @@
-// Define variables to hold the visualizations
 let scatterplot, histogram1, histogram2, elderlyMap, bloodPressureMap;
 
 const attributeLabels = {
@@ -24,21 +23,26 @@ const attributeLabels = {
 // Function to initialize all visualizations
 function initVisualizations(csvData, geoData) {
     // Initialize scatterplot
-    scatterplot = new Scatterplot({ parentElement: '#scatterplot' }, csvData);
+    scatterplot = new Scatterplot({ 
+        parentElement: '#scatterplot', 
+        containerWidth: 500,
+        containerHeight: 300,
+        margin: {top: 25, right: 20, bottom: 50, left: 90}, }, csvData);
+    
 
     // Initialize histograms
     histogram1 = new Histogram({
         parentElement: '#histogram-elderly',
         containerWidth: 500,
         containerHeight: 300,
-        margin: { top: 25, right: 20, bottom: 50, left: 50 },
+        margin: {top: 25, right: 20, bottom: 50, left: 100}, 
     }, csvData, d => d.elderly_percentage, 'Elderly Percentage (%)');
 
     histogram2 = new Histogram({
         parentElement: '#histogram-blood-pressure',
         containerWidth: 500,
         containerHeight: 300,
-        margin: { top: 25, right: 20, bottom: 50, left: 50 },
+        margin: {top: 25, right: 20, bottom: 50, left: 90}, 
     }, csvData, d => d.percent_high_blood_pressure, 'Percent High Blood Pressure (%)');
 
     // Initialize choropleth maps
@@ -81,6 +85,7 @@ function initVisualizations(csvData, geoData) {
         updateVisualizations(d3.select('#xAttributeSelector').property('value'), selectedYAttribute);
     });
 }
+
 
 // Load CSV and JSON data
 Promise.all([
@@ -162,8 +167,8 @@ function updateVisualizations(selectedAttribute1, selectedAttribute2) {
     scatterplot.updateVis(selectedAttribute1, selectedAttribute2, selectedAttribute1Label, selectedAttribute2Label);
 
     // Update histograms
-    histogram1.updateVis(d => d[selectedAttribute1], selectedAttribute1Label)
-    histogram2.updateVis(d => d[selectedAttribute2] , selectedAttribute2Label);
+    histogram1.updateVis(d => d[selectedAttribute1], selectedAttribute1Label);
+    histogram2.updateVis(d => d[selectedAttribute2], selectedAttribute2Label);
 
     // Update choropleth maps
     elderlyMap.updateVis(selectedAttribute1);

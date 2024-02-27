@@ -1,16 +1,11 @@
 class Scatterplot {
 
-    /**
-     * Class constructor with basic chart configuration
-     * @param {Object}
-     * @param {Array}
-     */
     constructor(_config, _data, _xAttribute = 'elderly_percentage', _yAttribute = 'percent_high_blood_pressure') {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 500,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 25, right: 20, bottom: 20, left: 35},
+        margin: _config.margin || {top: 25, right: 20, bottom: 40, left: 35}, // Increased bottom margin to accommodate the X-axis label
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -19,9 +14,6 @@ class Scatterplot {
       this.yAttribute = _yAttribute;
     }
     
-    /**
-     * We initialize scales/axes and append static elements, such as axis titles.
-     */
     initVis() {
       let vis = this;
   
@@ -29,76 +21,65 @@ class Scatterplot {
       vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
       vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
   
-      // Initialize scales
       vis.xScale = d3.scaleLinear()
           .range([0, vis.width]);
   
       vis.yScale = d3.scaleLinear()
           .range([vis.height, 0]);
   
-      // Initialize axes
       vis.xAxis = d3.axisBottom(vis.xScale)
           .ticks(6)
 
       vis.yAxis = d3.axisLeft(vis.yScale)
           .ticks(6)
   
-      // Define size of SVG drawing area
       vis.svg = d3.select(vis.config.parentElement)
           .attr('width', vis.config.containerWidth)
           .attr('height', vis.config.containerHeight);
   
-      // Append group element that will contain our actual chart 
-      // and position it according to the given margin config
       vis.chart = vis.svg.append('g')
           .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
   
-      // Append empty x-axis group and move it to the bottom of the chart
       vis.xAxisG = vis.chart.append('g')
           .attr('class', 'axis x-axis')
           .attr('transform', `translate(0,${vis.height})`);
       
-      // Append y-axis group
       vis.yAxisG = vis.chart.append('g')
           .attr('class', 'axis y-axis');
   
-      // X- Axis Label
+      // X-Axis Label
       vis.chart.append('text')
-          .attr('class', 'axis-title')
+          .attr('class', 'x-axis-label')
           .attr('x', vis.config.containerWidth / 2)
-          .attr('y', vis.config.containerWidth - 10)
+          .attr('y', vis.config.containerHeight - 10) 
           .attr('text-anchor', 'middle')
-          .text('Elderly Perecentage (%)');
-
-      // Y - Axis Label    
+          .text('');
+  
+      // Y-Axis Label    
       vis.svg.append('text')
+          .attr('class', 'y-axis-label')
           .attr('transform', 'rotate(-90)')
-          .attr('x', -vis.config.containerWidth / 2)
+          .attr('x', -vis.config.containerWidth *0.27 )
           .attr('y', 15)
           .attr('dy', '.71em')
           .attr('text-anchor', 'middle')
-          .text('Percent High Blood Pressure (%)');
+          .text('');
   
-      // Specificy accessor functions
       vis.xValue = d => d[vis.xAttribute];
       vis.yValue = d => d[vis.yAttribute];
     }
   
-    /**
-     * Prepare the data and scales before we render it.
-     */
     updateVis(xAttribute, yAttribute, xAttributeLabel, yAttributeLabel) {
       let vis = this;
       
       vis.xAttribute = xAttribute;
       vis.yAttribute = yAttribute;
+      vis.xAttributeLabel = xAttributeLabel;
+      vis.yAttributeLabel = yAttributeLabel;
       
-      // Set the scale input domains
       vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
       vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
   
-      // Update the axes/gridlines
-      // We use the second .call() to remove the axis and just show gridlines
       vis.xAxisG
           .call(vis.xAxis)
           .call(g => g.select('.domain').remove());
@@ -107,15 +88,12 @@ class Scatterplot {
           .call(vis.yAxis)
           .call(g => g.select('.domain').remove());
   
-      // Update x-axis label
-      vis.chart.select('.x-axis-title')
-          .text(xAttributeLabel);
+      vis.chart.select('.x-axis-label')
+          .text(xAttributeLabel); 
   
-      // Update y-axis label
-      vis.svg.select('.y-axis-title')
-          .text(yAttributeLabel);
+      vis.svg.select('.y-axis-label')
+          .text(yAttributeLabel); 
   
-      // Add circles
       vis.circles = vis.chart.selectAll('.point')
       .data(vis.data)
       .join('circle')
@@ -126,7 +104,6 @@ class Scatterplot {
           .attr('fill','#C8A2C8')
           .attr('opacity', 0.8);
   
-      // Tooltip event listeners
       vis.circles
           .on('mouseover', (event,d) => {
           d3.select('#tooltip')
@@ -143,4 +120,4 @@ class Scatterplot {
           d3.select('#tooltip').style('display', 'none');
           });
     }
-}  
+}
