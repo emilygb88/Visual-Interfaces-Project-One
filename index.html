@@ -12,21 +12,18 @@
     <div class="container">
         <div class="header">
             <h1>Project 1: Health In the USA</h1>
-            <p>By: Emily Bever</p>
-            <p>Using D3 Library</p>
-            <div class="source">
-                Source: Data from <a href="https://www.cdc.gov/dhdsp/maps/atlas/index.htm">cdc.gov</a>
-            </div>
-            <div id="dropdowns">
-                <label for="xAttributeSelector">X Attribute:</label>
-                <select id="xAttributeSelector">
-                    <!-- Populate with options dynamically -->
-                </select>
-                <label for="yAttributeSelector">Y Attribute:</label>
-                <select id="yAttributeSelector">
-                    <!-- Populate with options dynamically -->
-                </select>
-            </div>
+                <p>By: Emily Bever</p>
+                <p>Using D3 Library</p>
+                <div class="source">
+                    Source: Data from <a href="https://www.cdc.gov/dhdsp/maps/atlas/index.htm">cdc.gov</a>
+                </div>
+        </div>
+        <div class="dropdown-container">
+            <h3>Select Your Attributes Here </h2>
+            <label for="xAttributeSelector">Attribute 1</label>
+            <select id="xAttributeSelector"></select>
+            <label for="yAttributeSelector">Attribute 2</label>
+            <select id="yAttributeSelector"></select>
         </div>
         <div class="grid">
             <div id="tooltip-map"></div>
