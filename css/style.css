@@ -1,3 +1,6 @@
+body {
+  margin: 0;
+}
 .container {
   display: grid;
   grid-template-areas:
@@ -5,7 +8,9 @@
       'maps maps maps charts charts charts';
   grid-template-columns: auto repeat(5, minmax(0, 1fr));
   gap: 10px;
-  padding: 20px;
+  padding: 10px;
+  margin: 0;
+  transform: scale(0.9);
 }
 
 /* Header styles */
@@ -246,6 +251,8 @@
   padding: 8px;
   min-width: 160px;
   color: #333;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 .legend{
