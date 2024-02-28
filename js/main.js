@@ -1,14 +1,14 @@
-let scatterplot, histogram1, histogram2, elderlyMap, bloodPressureMap;
+let scatterplot, histogram1, histogram2, map1, map2;
 
 const attributeLabels = {
     poverty_perc: 'Poverty Percentage (%)',
     median_household_income: 'Median Household Income ($)',
-    education_less_than_high_school_percent: 'Education Less Than High School Percentage (%)',
+    education_less_than_high_school_percent: 'Education Less Than High School (%)',
     air_quality: 'Air Quality',
-    park_access: 'Number of Parks',  // Check this
+    park_access: 'Number of Parks', 
     percent_inactive: 'Percent Inactive (%)',
     percent_smoking: 'Percent Smoking (%)',
-    urban_rural_status: 'Urban Rural Status', // Not number!
+    urban_rural_status: 'Urban Rural Status',
     elderly_percentage: 'Elderly Percentage (%)',
     number_of_hospitals: 'Number of Hospitals',
     number_of_primary_care_physicians: 'Number of Primary Care Physicians',
@@ -27,7 +27,7 @@ function initVisualizations(csvData, geoData) {
         parentElement: '#scatterplot', 
         containerWidth: 500,
         containerHeight: 300,
-        margin: {top: 25, right: 20, bottom: 50, left: 90}, }, csvData);
+        margin: {top: 25, right: 20, bottom: 50, left: 90}, }, csvData, 'poverty_perc', 'poverty_perc');
     
 
     // Initialize histograms
@@ -36,56 +36,105 @@ function initVisualizations(csvData, geoData) {
         containerWidth: 500,
         containerHeight: 300,
         margin: {top: 25, right: 20, bottom: 50, left: 100}, 
-    }, csvData, d => d.elderly_percentage, 'Elderly Percentage (%)');
+    }, csvData, d => d.elderly_percentage, 'Select Attributes to See Charts');
 
     histogram2 = new Histogram({
         parentElement: '#histogram-blood-pressure',
         containerWidth: 500,
         containerHeight: 300,
         margin: {top: 25, right: 20, bottom: 50, left: 90}, 
-    }, csvData, d => d.percent_high_blood_pressure, 'Percent High Blood Pressure (%)');
+    }, csvData, d => d.percent_high_blood_pressure, '');
 
     // Initialize choropleth maps
-    const geoDataElderly = JSON.parse(JSON.stringify(geoData));
-    const geoDataBloodPressure = JSON.parse(JSON.stringify(geoData));
+    const geoDataMap1 = JSON.parse(JSON.stringify(geoData));
+    const geoDataMap2 = JSON.parse(JSON.stringify(geoData));
 
-    geoDataElderly.objects.counties.geometries.forEach(d => {
+    geoDataMap1.objects.counties.geometries.forEach(d => {
         for (let i = 0; i < csvData.length; i++) {
             if (d.id === csvData[i].cnty_fips) {
-                d.properties.pop = +csvData[i].elderly_percentage;
+                d.properties.pop = +csvData[i].poverty_perc;
             }
         }
     });
 
-    geoDataBloodPressure.objects.counties.geometries.forEach(d => {
+    geoDataMap2.objects.counties.geometries.forEach(d => {
         for (let i = 0; i < csvData.length; i++) {
             if (d.id === csvData[i].cnty_fips) {
-                d.properties.pop = +csvData[i].percent_high_blood_pressure;
+                d.properties.pop = +csvData[i].poverty_perc;
             }
         }
     });
 
-    elderlyMap = new ChoroplethMap({
+    map1 = new ChoroplethMap({
         parentElement: '#map-elderly',
         margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    }, geoDataElderly);
+    }, geoDataMap1);
 
-    bloodPressureMap = new ChoroplethMap({
+    map2 = new ChoroplethMap({
         parentElement: '#map-blood-pressure',
         margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    }, geoDataBloodPressure);
+    }, geoDataMap2);
 
-    d3.select('#xAttributeSelector').on('change', function() {
-        const selectedXAttribute = d3.select(this).property('value');
-        updateVisualizations(selectedXAttribute, d3.select('#yAttributeSelector').property('value'));
-    });
-    
-    d3.select('#yAttributeSelector').on('change', function() {
-        const selectedYAttribute = d3.select(this).property('value');
-        updateVisualizations(d3.select('#xAttributeSelector').property('value'), selectedYAttribute);
-    });
 }
 
+// Function to update choropleth map data based on selected attribute
+function updateChoroplethData(selectedAttribute, geoData, csvData) {
+    const updatedGeoData = JSON.parse(JSON.stringify(geoData)); 
+
+    updatedGeoData.objects.counties.geometries.forEach(d => {
+        for (let i = 0; i < csvData.length; i++) {
+            if (d.id === csvData[i].cnty_fips) {
+                d.properties.pop = +csvData[i][selectedAttribute];
+            }
+        }
+    });
+
+    return updatedGeoData;
+}
+
+// Function to update all visualizations based on selected attributes
+function updateVisualizations(selectedAttribute1, selectedAttribute2, geoData, csvData) {
+    const selectedAttribute1Label = attributeLabels[selectedAttribute1];
+    const selectedAttribute2Label = attributeLabels[selectedAttribute2];
+
+    // Update scatterplot
+    scatterplot.updateVis(selectedAttribute1, selectedAttribute2, selectedAttribute1Label, selectedAttribute2Label);
+
+    // Update histograms
+    histogram1.updateVis(d => d[selectedAttribute1], selectedAttribute1Label);
+    histogram2.updateVis(d => d[selectedAttribute2], selectedAttribute2Label);
+
+    updateMap1(selectedAttribute1, selectedAttribute1Label, geoData, csvData);
+    updateMap2(selectedAttribute2, selectedAttribute2Label, geoData, csvData);
+}
+
+function updateMap1(selectedAttribute1, selectedAttribute1Label, geoData, csvData){
+    // Update choropleth maps
+    const geoDataMap1 = JSON.parse(JSON.stringify(geoData));
+
+    geoDataMap1.objects.counties.geometries.forEach(d => {
+        for (let i = 0; i < csvData.length; i++) {
+            if (d.id === csvData[i].cnty_fips) {
+                d.properties.pop = +csvData[i][selectedAttribute1]; 
+            }
+        }
+    });
+    map1.updateVis(geoDataMap1, selectedAttribute1, selectedAttribute1Label);
+}
+
+function updateMap2(selectedAttribute2, selectedAttribute2Label, geoData, csvData){
+    // Update choropleth maps
+    const geoDataMap2 = JSON.parse(JSON.stringify(geoData));
+
+    geoDataMap2.objects.counties.geometries.forEach(d => {
+        for (let i = 0; i < csvData.length; i++) {
+            if (d.id === csvData[i].cnty_fips) {
+                d.properties.pop = +csvData[i][selectedAttribute2]; 
+            }
+        }
+    });
+    map2.updateVis(geoDataMap2, selectedAttribute2, selectedAttribute2Label);
+}
 
 // Load CSV and JSON data
 Promise.all([
@@ -119,7 +168,6 @@ Promise.all([
     // Initialize visualizations
     initVisualizations(csvData, geoData);
 
-    // Assuming `attributes` is an array containing the attribute names in your dataset
     const attributes = [
         'poverty_perc',
         'median_household_income',
@@ -139,7 +187,6 @@ Promise.all([
         'percent_high_cholesterol'
       ];
 
-    // Populate dropdown menus with options
     const xDropdown = d3.select('#xAttributeSelector');
     const yDropdown = d3.select('#yAttributeSelector');
 
@@ -156,21 +203,19 @@ Promise.all([
         .append('option')
         .attr('value', d => d)
         .text(d => d);
+    
+    d3.select('#xAttributeSelector').on('change', function() {
+        const selectedXAttribute = d3.select(this).property('value');
+        updateVisualizations(selectedXAttribute, d3.select('#yAttributeSelector').property('value'), geoData, csvData);
+        const selectedAttribute1Label = attributeLabels[selectedXAttribute];
+        updateMap1(selectedXAttribute, selectedAttribute1Label, geoData, csvData);
+    });
+    
+    d3.select('#yAttributeSelector').on('change', function() {
+        const selectedYAttribute = d3.select(this).property('value');
+        updateVisualizations(d3.select('#xAttributeSelector').property('value'), selectedYAttribute, geoData, csvData);
+        const selectedAttribute2Label = attributeLabels[selectedYAttribute];
+        updateMap2(selectedYAttribute, selectedAttribute2Label, geoData, csvData);
+    });
+        
 }).catch(error => console.error(error));
-
-// Function to update all visualizations based on selected attributes
-function updateVisualizations(selectedAttribute1, selectedAttribute2) {
-    const selectedAttribute1Label = attributeLabels[selectedAttribute1];
-    const selectedAttribute2Label = attributeLabels[selectedAttribute2];
-
-    // Update scatterplot
-    scatterplot.updateVis(selectedAttribute1, selectedAttribute2, selectedAttribute1Label, selectedAttribute2Label);
-
-    // Update histograms
-    histogram1.updateVis(d => d[selectedAttribute1], selectedAttribute1Label);
-    histogram2.updateVis(d => d[selectedAttribute2], selectedAttribute2Label);
-
-    // Update choropleth maps
-    elderlyMap.updateVis(selectedAttribute1);
-    bloodPressureMap.updateVis(selectedAttribute2);
-}

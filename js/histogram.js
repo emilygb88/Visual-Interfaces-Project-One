@@ -47,8 +47,6 @@ class Histogram {
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight);
     
-        // Append group element that will contain our actual chart
-        // and position it according to the given margin config
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
     
@@ -72,12 +70,13 @@ class Histogram {
     
         // Append y-axis label
         vis.svg.append('text')
+            .attr('class', 'y-axis-label')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerWidth *0.27 )
             .attr('y', 15)
             .attr('dy', '.71em')
             .attr('text-anchor', 'middle')
-            .text('Number of Counties');
+            .text('');
     
         // Specify accessor function for x-value
         vis.xValue = d => d[vis.xValue];
@@ -133,6 +132,9 @@ class Histogram {
     
         vis.svg.select('.x-axis-label')
             .text(xAxisLabel);
+
+        vis.svg.select('.y-axis-label')
+            .text('Number of Counties'); 
     
         // Update bars
         vis.bars = vis.chart.selectAll('.bar')

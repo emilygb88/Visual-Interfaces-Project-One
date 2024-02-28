@@ -1,11 +1,11 @@
 class Scatterplot {
 
-    constructor(_config, _data, _xAttribute = 'elderly_percentage', _yAttribute = 'percent_high_blood_pressure') {
+    constructor(_config, _data, _xAttribute, _yAttribute) {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 500,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 25, right: 20, bottom: 40, left: 35}, // Increased bottom margin to accommodate the X-axis label
+        margin: _config.margin || {top: 25, right: 20, bottom: 40, left: 35}, 
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -48,7 +48,7 @@ class Scatterplot {
           .attr('class', 'axis y-axis');
   
       // X-Axis Label
-      vis.chart.append('text')
+      vis.svg.append('text')
           .attr('class', 'x-axis-label')
           .attr('x', vis.config.containerWidth / 2)
           .attr('y', vis.config.containerHeight - 10) 
@@ -88,7 +88,7 @@ class Scatterplot {
           .call(vis.yAxis)
           .call(g => g.select('.domain').remove());
   
-      vis.chart.select('.x-axis-label')
+      vis.svg.select('.x-axis-label')
           .text(xAttributeLabel); 
   
       vis.svg.select('.y-axis-label')
