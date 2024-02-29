@@ -164,13 +164,12 @@ body {
 }
 
 .bar {
-  fill: #d4d645;
   opacity: 0.9;
 }
 
 .bar:hover {
   cursor: pointer;
-  fill: #909133;
+  fill: #a4a4a6;
 }
 
 
