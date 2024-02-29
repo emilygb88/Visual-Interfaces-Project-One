@@ -1,4 +1,4 @@
-class ChoroplethMap {
+class ChoroplethMap2 {
     /**
      * Class constructor with basic configuration
      * @param {Object} _config - Configuration object
@@ -6,7 +6,7 @@ class ChoroplethMap {
      * @param {string} color1 - First color for the legend
      * @param {string} color2 - Second color for the legend
      */
-    constructor(_config, _data, color1, color2) {
+    constructor(_config, _data, colorOne, colorTwo) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 600,
@@ -20,8 +20,8 @@ class ChoroplethMap {
         };
         this.data = _data;
         this.us = _data;
-        this.color1 = color1;
-        this.color2 = color2;
+        this.color1 = colorOne;
+        this.color2 = colorTwo;
         this.active = d3.select(null);
 
         // Initialize the visualization
@@ -73,7 +73,7 @@ class ChoroplethMap {
         // Define color scale
         vis.colorScale = d3.scaleLinear()
             .domain(d3.extent(vis.data.objects.counties.geometries, d => d.properties.pop))
-            .range([this.color1, this.color2])
+            .range(['#eee1f7', '#280245'])
             .interpolate(d3.interpolateHcl);
 
         vis.path = d3.geoPath()
@@ -137,7 +137,7 @@ class ChoroplethMap {
     
         const gradient = vis.legend.append('defs')
             .append('linearGradient')
-            .attr('id', 'legend-gradientt')
+            .attr('id', 'legend-gradient')
             .attr('x1', '0%')
             .attr('y1', '0%')
             .attr('x2', '100%')
@@ -157,7 +157,7 @@ class ChoroplethMap {
         vis.legend.append('rect')
             .attr('width', vis.config.legendRectWidth)
             .attr('height', vis.config.legendRectHeight)
-            .style('fill', 'url(#legend-gradientt)');
+            .style('fill', 'url(#legend-gradient)');
     
         // Add low and high text labels 
         vis.legend.selectAll('.legend-label')

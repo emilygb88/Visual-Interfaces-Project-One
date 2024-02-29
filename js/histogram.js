@@ -6,7 +6,7 @@ class Histogram {
    * @param {Function} xValue
    * @param {string} xValueLabel
    */
-    constructor(_config, _data, xValue, xValueLabel) {
+    constructor(_config, _data, xValue, xValueLabel, colorScale) {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 600,
@@ -17,8 +17,22 @@ class Histogram {
       this.data = _data;
       this.xValue = xValue;
       this.xValueLabel = xValueLabel;
+      this.colorScale =  colorScale;
       this.initVis();
     }
+    mapNumericToLabel(attribute, value) {
+        if (attribute === 'urban_rural_status') {
+            const labelMap = {
+                1: 'Rural',
+                2: 'Small City',
+                3: 'Suburban',
+                4: 'Urban'
+            };
+            return labelMap[value] || value;
+        }
+        return value;
+    }
+
     
     initVis() {
         let vis = this;
@@ -98,9 +112,11 @@ class Histogram {
         } else if (xAxisLabel.toLowerCase().includes('park')) {
             vis.xScale.domain([0, 110]);
         } else if (xAxisLabel.toLowerCase().includes('hospital')) {
-            vis.xScale.domain([0, 80]);
+            vis.xScale.domain([0, 30]);
         } else if (xAxisLabel.toLowerCase().includes('primary')) {
             vis.xScale.domain([0, 30]);
+        } else if (xAxisLabel.toLowerCase().includes('urban')) {
+        vis.xScale.domain([0, 6]);
         }
         else {
             vis.xScale.domain([0, 100])
@@ -145,17 +161,29 @@ class Histogram {
             .attr('width', d => Math.max(0, vis.xScale(d.x1) - vis.xScale(d.x0) - 1))
             .attr('y', d => vis.yScale(d.length)) 
             .attr('height', d => vis.height - vis.yScale(d.length)) 
-            .attr('fill', '#d4d645')
+            .attr('fill', this.colorScale)
             .attr('opacity', 0.7)
             .on('mouseover', function(event, d) {
+                let x;
+                if (xAxisLabel.toLowerCase().includes('urban')) {
+                    const labelX0 = vis.mapNumericToLabel('urban_rural_status', Math.round(d.x0));
+                    // const labelX1 = vis.mapNumericToLabel(attribute, Math.round(d.x1));
+                    x = `
+                    <div><strong>${d.length}</strong> counties</div>
+                    <div>Category: <strong>${labelX0}</strong></div>
+                `
+                } else{
+                    x = `
+                    <div><strong>${d.length}</strong> counties</div>
+                    <div>Range: <strong>${Math.round(d.x0)}</strong> - <strong>${Math.round(d.x1)}</strong></div>
+                `
+                }
+                
                 // Show tooltip
                 d3.select('#histogram-tooltip')
                     .style('display', 'block')
                     .style('opacity', 0.9)
-                    .html(`
-                        <div><strong>${d.length}</strong> counties</div>
-                        <div>Range: <strong>${Math.round(d.x0)}</strong> - <strong>${Math.round(d.x1)}</strong></div>
-                    `)
+                    .html(x)
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 28) + 'px');
             })

@@ -36,14 +36,14 @@ function initVisualizations(csvData, geoData) {
         containerWidth: 500,
         containerHeight: 300,
         margin: {top: 25, right: 20, bottom: 50, left: 100}, 
-    }, csvData, d => d.elderly_percentage, 'Select Attributes to See Charts');
+    }, csvData, d => d.elderly_percentage, 'Select Attributes to See Charts', '#4368a8');
 
     histogram2 = new Histogram({
         parentElement: '#histogram-blood-pressure',
         containerWidth: 500,
         containerHeight: 300,
         margin: {top: 25, right: 20, bottom: 50, left: 90}, 
-    }, csvData, d => d.percent_high_blood_pressure, '');
+    }, csvData, d => d.percent_high_blood_pressure, '', '#6d438c');
 
     // Initialize choropleth maps
     const geoDataMap1 = JSON.parse(JSON.stringify(geoData));
@@ -68,12 +68,12 @@ function initVisualizations(csvData, geoData) {
     map1 = new ChoroplethMap({
         parentElement: '#map-elderly',
         margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    }, geoDataMap1);
+    }, geoDataMap1, '#cfe2f2', '#0d306b');
 
-    map2 = new ChoroplethMap({
+    map2 = new ChoroplethMap2({
         parentElement: '#map-blood-pressure',
         margin: { top: 10, right: 10, bottom: 10, left: 10 },
-    }, geoDataMap2);
+    }, geoDataMap2, '#eee1f7', '#280245');
 
 }
 
@@ -153,7 +153,12 @@ Promise.all([
         d.park_access = +d.park_access;
         d.percent_inactive = +d.percent_inactive;
         d.percent_smoking = +d.percent_smoking;
-        d.urban_rural_status = +d.urban_rural_status;
+        d.urban_rural_status = {
+            'Rural': 1,
+            'Small City': 2,
+            'Suburban': 3,
+            'Urban': 4
+        }[d.urban_rural_status];
         d.elderly_percentage = +d.elderly_percentage;
         d.number_of_hospitals = +d.number_of_hospitals;
         d.number_of_primary_care_physicians = +d.number_of_primary_care_physicians;
@@ -162,7 +167,6 @@ Promise.all([
         d.percent_coronary_heart_disease = +d.percent_coronary_heart_disease;
         d.percent_stroke = +d.percent_stroke;
         d.percent_high_cholesterol = +d.percent_high_cholesterol;
-
     });
 
     // Initialize visualizations
